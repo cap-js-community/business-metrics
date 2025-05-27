@@ -1,0 +1,71 @@
+@host = http://localhost:4004
+
+###
+
+GET {{host}}/odata/v4/admin/Books
+Authorization: Basic alice:wonderland
+
+###
+
+GET {{host}}/odata/v4/admin/Books(252)
+Authorization: Basic alice:wonderland
+
+###
+
+GET {{host}}/odata/v4/admin/Authors
+Authorization: Basic alice:wonderland
+
+###
+
+POST {{host}}/odata/v4/genre/Genres
+Authorization: Basic alice:wonderland
+Content-Type: application/json
+
+{}
+
+###
+
+POST {{host}}/odata/v4/admin/$batch
+Authorization: Basic alice:wonderland
+Content-Type: application/json
+
+{
+  "requests": [
+    {
+      "id": "1",
+      "method": "GET",
+      "url": "Books"
+    },
+    {
+      "id": "2",
+      "method": "GET",
+      "url": "Authors"
+    }
+  ]
+}
+
+###
+
+POST {{host}}/odata/v4/admin/test_spawn
+Authorization: Basic alice:wonderland
+Content-Type: application/json
+
+{}
+
+###
+
+POST {{host}}/odata/v4/admin/test_emit
+Authorization: Basic alice:wonderland
+Content-Type: application/json
+
+{}
+
+###
+
+GET {{host}}/odata/v4/catalog/ListOfBooks
+Authorization: Basic alice:wonderland
+
+###
+
+GET {{host}}/odata/v4/admin/Genres
+Authorization: Basic alice:wonderland
