@@ -41,6 +41,7 @@
   },
   "scripts": {
     "start": "cds-serve",
+    "lint": "npx eslint .",
     "test": "npx jest --maxWorkers=1 --silent",
     "test-file": "npx jest test/counter-metrics.test.js --silent"
   }
