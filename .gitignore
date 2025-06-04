@@ -41,6 +41,5 @@ coverage
 
 # custom
 package-lock.json
-.npmrc
 .babelrc
 .prettierrc.js
