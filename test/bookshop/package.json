@@ -1,0 +1,24 @@
+{
+  "name": "bookshop",
+  "dependencies": {
+    "@cap-js/sqlite": "*",
+    "@cap-js/telemetry": "*",
+    "@opentelemetry/exporter-prometheus": "^0.57.2",
+    "@opentelemetry/host-metrics": "*",
+    "@opentelemetry/instrumentation-runtime-node": "*",
+    "@sap/cds-mtxs": "*",
+    "business-metrics": "*"
+  },
+  "devDependencies": {
+    "@sap/cds-dk": "^8"
+  },
+  "cds": {
+    "requires": {
+      "telemetry": {
+        "metrics": {
+          "enableBusinessMetrics": true
+        }
+      }
+    }
+  }
+}
