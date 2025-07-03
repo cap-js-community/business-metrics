@@ -1,6 +1,6 @@
 {
   "name": "business-metrics",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Counter and Guage metrics for @cap-js/telemetry",
   "main": "cds-plugin.js",
   "files": [
