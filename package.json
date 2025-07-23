@@ -27,10 +27,10 @@
   "devDependencies": {
     "@cap-js/telemetry": "^1.2.3",
     "cap-telemetry-extensions": "file:.",
-    "@cap-js/cds-types": "^0.6",
+    "@cap-js/cds-types": "^0.13",
     "@cap-js/sqlite": "^1",
-    "@opentelemetry/host-metrics": "^0.35.0",
-    "@opentelemetry/instrumentation-runtime-node": "^0.12.0",
+    "@opentelemetry/host-metrics": "^0.36.0",
+    "@opentelemetry/instrumentation-runtime-node": "^0.17.0",
     "axios": "^1.6.7",
     "chai": "^4.4.1",
     "chai-as-promised": "^7.1.1",
