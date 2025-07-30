@@ -22,13 +22,13 @@
     "@opentelemetry/semantic-conventions": "^1.27"
   },
   "peerDependencies": {
-    "@sap/cds": ">=7"
+    "@sap/cds": ">=9"
   },
   "devDependencies": {
     "@cap-js/telemetry": "^1.2.3",
     "cap-telemetry-extensions": "file:.",
     "@cap-js/cds-types": "^0.13",
-    "@cap-js/sqlite": "^1",
+    "@cap-js/sqlite": "^2",
     "@opentelemetry/host-metrics": "^0.36.0",
     "@opentelemetry/instrumentation-runtime-node": "^0.17.0",
     "axios": "^1.6.7",

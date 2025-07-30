@@ -10,7 +10,7 @@
     "business-metrics": "*"
   },
   "devDependencies": {
-    "@sap/cds-dk": "^8"
+    "@sap/cds-dk": "^9"
   },
   "cds": {
     "requires": {
