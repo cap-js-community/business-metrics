@@ -13,7 +13,7 @@
   "dependencies": {
     "@cap-js/cds-test": "^0.4.0",
     "@opentelemetry/api": "^1.9.0",
-    "@opentelemetry/core": "^1.27",
+    "@opentelemetry/core": "^2.0",
     "@opentelemetry/instrumentation": "^0.203",
     "@opentelemetry/instrumentation-http": "^0.203",
     "@opentelemetry/resources": "^1.27",
