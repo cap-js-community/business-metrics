@@ -37,8 +37,8 @@
     "chai-as-promised": "^7.1.1",
     "chai-subset": "^1.6.0",
     "eslint": "^9.23.0",
-    "express": "^4",
-    "jest": "^30.0.5"
+    "express": "^5",
+    "jest": "^29.7.0"
   },
   "scripts": {
     "start": "cds-serve",
