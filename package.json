@@ -34,7 +34,7 @@
     "@opentelemetry/exporter-prometheus":"^0.57",
     "business-metrics": "file:.",
     "eslint": "^9.23.0",
-    "jest": "^29.7.0"
+    "jest": "^30.0.5"
   },
   "scripts": {
     "start": "cds-serve",
