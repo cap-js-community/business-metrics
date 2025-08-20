@@ -93,6 +93,16 @@ Example for reference in both entity amd action scenario:
 - **Events**: Specify the events (e.g., READ, DELETE) for which the counter metrics should be triggered.  [See full list of available events in the CAP docs](https://cap.cloud.sap/docs/node.js/events#cds-event)
 - **Attributes**: Define attributes (e.g., user, tenant) to include in the metrics. [See full list of available attributes in the CAP docs](https://cap.cloud.sap/docs/node.js/events#cds-event-context)
 
+##### Example `counter metrics` outputs:
+
+```
+[telemetry] - CategoryService.Books_READ_total: {
+  attributes: { user: '', tenant: '' },
+  startTime: [ 100000000, 400000000 ],
+  endTime: [ 100000000, 600000000 ],
+  value: 3
+}
+```
 
 ### Gauge Annotation
 
@@ -118,7 +128,16 @@ Example for reference in both entity amd action scenario:
             };
     }
 ```
+##### Example `gauge metrics` outputs:
 
+```
+[telemetry] - CategoryService.BookStock: {
+  attributes: { entity_gauge: 'CategoryService.BookStock', key: 271 },
+  startTime: [ 1755508380, 604000000 ],
+  endTime: [ 1755508380, 604000000 ],
+  value: 22
+}
+```
 - **Key**: Specify the unique key for the entity.
 - **Observe**: Define the fields to observe for gauge metrics.
 

@@ -12,13 +12,13 @@
   "private": true,
   "dependencies": {
     "@opentelemetry/api": "^1.9.0",
-    "@opentelemetry/core": "^2.0",
-    "@opentelemetry/instrumentation": "^0.203",
-    "@opentelemetry/instrumentation-http": "^0.203",
-    "@opentelemetry/resources": "^2.0",
-    "@opentelemetry/sdk-trace-base": "^2.0",
-    "@opentelemetry/sdk-metrics": "^2.0",
-    "@opentelemetry/sdk-trace-node": "^2.0",
+    "@opentelemetry/core": "^1.30",
+    "@opentelemetry/instrumentation": "^0.57",
+    "@opentelemetry/instrumentation-http": "^0.57",
+    "@opentelemetry/resources": "^1.30",
+    "@opentelemetry/sdk-metrics": "^1.30",
+    "@opentelemetry/sdk-trace-base": "^1.30",
+    "@opentelemetry/sdk-trace-node": "^1.30",
     "@opentelemetry/semantic-conventions": "^1.27"
   },
   "peerDependencies": {
@@ -31,7 +31,8 @@
     "@cap-js/telemetry": "^1.2.3",
     "@opentelemetry/host-metrics": "^0.36.0",
     "@opentelemetry/instrumentation-runtime-node": "^0.17.0",
-    "cap-telemetry-extensions": "file:.",
+    "@opentelemetry/exporter-prometheus":"^0.57",
+    "business-metrics": "file:.",
     "eslint": "^9.23.0",
     "jest": "^30.0.5"
   },
