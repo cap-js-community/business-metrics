@@ -95,6 +95,8 @@ Example for reference in both entity amd action scenario:
 
 ##### Example `counter metrics` outputs:
 
+The counter metric name always follows the pattern `<service name>.<entity name>_<event>_total`. This pattern is fixed and cannot be changed or overridden.
+
 ```
 [telemetry] - CategoryService.Books_READ_total: {
   attributes: { user: '', tenant: '' },
@@ -129,6 +131,8 @@ Example for reference in both entity amd action scenario:
     }
 ```
 ##### Example `gauge metrics` outputs:
+
+The guage metric name always follows the pattern `<service name>.<entity name>`. This pattern is fixed and cannot be changed or overridden.
 
 ```
 [telemetry] - CategoryService.BookStock: {
