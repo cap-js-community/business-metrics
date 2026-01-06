@@ -1,5 +1,5 @@
 {
-  "name": "business-metrics",
+  "name": "@cap-js-community/business-metrics",
   "version": "0.0.1",
   "description": "Counter and Guage metrics for @cap-js/telemetry",
   "main": "cds-plugin.js",
