@@ -72,11 +72,12 @@ function getLabels(attributes, req) {
                         case 'tenant':
                             labels.tenant = req?.authInfo?.getSubdomain() || 'unknown';
                             break;
-                        default:
+                        default: {
                             // This should not happen due to validation above, but keeping as fallback
                             const fallbackErrorMsg = `Unsupported attribute: ${attributeName}`;
                             console.error(fallbackErrorMsg);
                             throw new Error(fallbackErrorMsg);
+                        }
                     }
                 } catch (attributeError) {
                     logger.error(`Error processing attribute ${attribute['='] || attribute}:`, attributeError.message);
