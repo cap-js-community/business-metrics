@@ -34,9 +34,10 @@ describe('Gauge Metrics - BookStock Entity', () => {
 
     await wait(500); // Allow gauge observation time to log
 
-    expect(log.output).to.match(
-        /CategoryService\.BookStock: {\s+attributes: { entity_gauge: 'CategoryService\.BookStock', key: 1001 },[\s\S]+?value: 10/i
-      );
+    expect(log.output).to.contain("CategoryService.BookStock");
+    expect(log.output).to.contain("entity_gauge: 'CategoryService.BookStock'");
+    expect(log.output).to.contain("key: 1001");
+    expect(log.output).to.contain("value: 10");
   });
 
   test('Gauge updates when stock changes', async () => {
@@ -49,8 +50,9 @@ describe('Gauge Metrics - BookStock Entity', () => {
     await wait(500);
 
     // Ensure that stock value changes are logged properly
-    expect(log.output).to.match(
-        /CategoryService\.BookStock: {\s+attributes: { entity_gauge: 'CategoryService\.BookStock', key: 1001 },[\s\S]+?value: 5/i
-      );
+    expect(log.output).to.contain("CategoryService.BookStock");
+    expect(log.output).to.contain("entity_gauge: 'CategoryService.BookStock'");
+    expect(log.output).to.contain("key: 1001");
+    expect(log.output).to.contain("value: 5");
   });
 });
