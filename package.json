@@ -12,13 +12,13 @@
   "private": true,
   "dependencies": {
     "@opentelemetry/api": "^1.9.0",
-    "@opentelemetry/core": "^1.30",
+    "@opentelemetry/core": "^2.2",
     "@opentelemetry/instrumentation": "^0.208",
     "@opentelemetry/instrumentation-http": "^0.208",
-    "@opentelemetry/resources": "^1.30",
+    "@opentelemetry/resources": "^2.2",
     "@opentelemetry/sdk-metrics": "^1.30",
     "@opentelemetry/sdk-trace-base": "^1.30",
-    "@opentelemetry/sdk-trace-node": "^1.30",
+    "@opentelemetry/sdk-trace-node": "^2.2",
     "@opentelemetry/semantic-conventions": "^1.27"
   },
   "peerDependencies": {
