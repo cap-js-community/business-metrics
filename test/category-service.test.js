@@ -1,5 +1,5 @@
 const cds = require('@sap/cds');
-const { expect, POST, DELETE } = cds.test().in(__dirname + '/bookshop');
+const { expect, POST } = cds.test().in(__dirname + '/bookshop');
 
 describe('CategoryService', () => {
   const admin = { auth: { username: 'alice' } };
