@@ -188,7 +188,6 @@ describe('Gauge Metrics - BookStock Entity', () => {
     const entity = { name: 'TestEntity', description: 'desc' };
     const fieldToObserve = ['value'];
     const key = 'id';
-    const mockRow = { value: 42, id: 'abc' };
     const tx = {
       run: async () => { throw new Error('tx error'); },
       rollback: async () => { throw new Error('rollback error'); }
