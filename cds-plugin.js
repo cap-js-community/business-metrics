@@ -15,7 +15,7 @@ if (i > 1 && process.argv[i - 1].match(/cds(\.js)?$/)) _startup = false
 if (!!process.env.NO_TELEMETRY && process.env.NO_TELEMETRY !== 'false') _startup = false
 
 
-if(cds?.requires?.telemetry?.metrics?.enableBusinessMetrics) {
+if(_startup && cds?.requires?.telemetry?.metrics?.enableBusinessMetrics) {
     //business metrics handling
 
     cds.once("served", async () => {
