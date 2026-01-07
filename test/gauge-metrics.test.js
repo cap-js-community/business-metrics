@@ -1,7 +1,7 @@
 process.env.cds_requires_telemetry_metrics_config = JSON.stringify({ exportIntervalMillis: 100 });
 
 const cds = require('@sap/cds');
-const { expect, GET, PATCH } = cds.test().in(__dirname + '/bookshop');
+const { expect, GET } = cds.test().in(__dirname + '/bookshop');
 const log = cds.test.log();
 const wait = require('util').promisify(setTimeout);
 
