@@ -61,7 +61,6 @@ function getLabels(attributes, req) {
                     // Validate if the attribute is in the list of valid attributes
                     if (!userAttributes.includes(attributeName)) {
                         const errorMsg = `Invalid attribute '${attributeName}'. Valid attributes are: ${userAttributes.join(', ')}`;
-                        console.error(errorMsg);
                         throw new Error(errorMsg);
                     }
 
@@ -75,7 +74,6 @@ function getLabels(attributes, req) {
                         default: {
                             // This should not happen due to validation above, but keeping as fallback
                             const fallbackErrorMsg = `Unsupported attribute: ${attributeName}`;
-                            console.error(fallbackErrorMsg);
                             throw new Error(fallbackErrorMsg);
                         }
                     }
