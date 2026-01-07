@@ -25,7 +25,12 @@ describe('Gauge Metrics - BookStock Entity', () => {
   });
 
   afterEach(async () => {
-    await db.run(cds.ql.DELETE.from('sap.capire.bookshop.Books').where({ ID: 1001 }));
+    try {
+      await db.run(cds.ql.DELETE.from('sap.capire.bookshop.Books').where({ ID: 1001 }));
+    } catch (e) {
+      // Ignore errors during cleanup to avoid failing tests if the record does not exist
+      log && log.error && log.error('Cleanup DELETE failed for book ID 1001:', e);
+    }
   });
 
   test('Gauge observes initial stock value', async () => {
