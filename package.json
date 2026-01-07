@@ -18,7 +18,7 @@
     "@opentelemetry/resources": "^2.2",
     "@opentelemetry/sdk-metrics": "^1.30",
     "@opentelemetry/sdk-trace-base": "^1.30",
-    "@opentelemetry/sdk-trace-node": "^1.30",
+    "@opentelemetry/sdk-trace-node": "^2.2",
     "@opentelemetry/semantic-conventions": "^1.27"
   },
   "peerDependencies": {
