@@ -40,6 +40,7 @@
     "start": "cds-serve",
     "lint": "npx eslint .",
     "test": "npx jest --maxWorkers=1 --silent --detectOpenHandles --forceExit",
-    "test-file": "npx jest test/counter-metrics.test.js --silent"
+    "test-file": "npx jest test/counter-metrics.test.js --silent",
+    "coverage": "npx jest --coverage --maxWorkers=1 --silent --detectOpenHandles"
   }
 }

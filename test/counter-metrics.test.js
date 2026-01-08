@@ -64,4 +64,41 @@ describe('Counter Metrics', () => {
 
     expect(log.output).to.match(/Books_buyBook_total/i);
   });
+
+  test('Logs and throws error when counter creation fails', async () => {
+    const { metrics } = require('@opentelemetry/api');
+    const { increaseCounter } = require('../lib/metrics/entity-metrics');
+    const originalGetMeter = metrics.getMeter;
+    metrics.getMeter = () => { throw new Error('Meter failure'); };
+
+    // Clear log before test
+    log.clear();
+
+    expect(() => increaseCounter('TestCounter')).not.throw() // Should not throw from increaseCounter
+    expect(log.output).to.match(/Error creating or retrieving counter/);
+
+    // Restore original
+    metrics.getMeter = originalGetMeter;
+  });
+
+  test('When the counter with given name exists already, then it should increment the same', () => {
+    const { metrics } = require('@opentelemetry/api');
+    const { increaseCounter } = require('../lib/metrics/entity-metrics');
+    // Mock counter with a value
+    let value = 0;
+    const fakeCounter = { add: (inc) => { value += inc; } };
+    const fakeMeter = { createCounter: () => fakeCounter };
+    const originalGetMeter = metrics.getMeter;
+    metrics.getMeter = () => fakeMeter;
+
+    // Call twice with the same name
+    increaseCounter('CacheTestCounter');
+    increaseCounter('CacheTestCounter');
+
+    // Should have increased by 2
+    expect(value).to.equal(2);
+
+    // Restore
+    metrics.getMeter = originalGetMeter;
+  });
 });
