@@ -81,7 +81,7 @@ describe('Counter Metrics', () => {
     metrics.getMeter = originalGetMeter;
   });
 
-  test('increaseCounter increases the counter value correctly when called multiple times', () => {
+  test('When the counter with given name exists already, then it should increment the same', () => {
     const { metrics } = require('@opentelemetry/api');
     const { increaseCounter } = require('../lib/metrics/entity-metrics');
     // Mock counter with a value

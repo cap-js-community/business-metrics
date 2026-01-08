@@ -86,7 +86,7 @@ describe('Gauge Metrics - BookStock Entity', () => {
     metrics.getMeter = originalGetMeter;
   });
 
-   test('createObservableGauge observes gauge values for valid fields', async () => {
+   test('Gauge handler observes values for valid fields', async () => {
     const { createObservableGauge } = require('../lib/metrics/entity-metrics');
     // Mock entity, field, and key
     const entity = { name: 'TestEntity', description: 'desc' };
@@ -129,7 +129,7 @@ describe('Gauge Metrics - BookStock Entity', () => {
     cds.transaction = originalTransaction;
   });
 
-  test('createObservableGauge skips null/undefined fields', async () => {
+  test('Gauge handler skips null/undefined fields', async () => {
     const { createObservableGauge } = require('../lib/metrics/entity-metrics');
     const entity = { name: 'TestEntity', description: 'desc' };
     const fieldToObserve = ['value', 'other'];
@@ -156,7 +156,7 @@ describe('Gauge Metrics - BookStock Entity', () => {
     cds.transaction = originalTransaction;
   });
 
-  test('createObservableGauge logs error if observe throws', async () => {
+  test('Gauge handler logs error if observe throws', async () => {
     const { createObservableGauge } = require('../lib/metrics/entity-metrics');
     const entity = { name: 'TestEntity', description: 'desc' };
     const fieldToObserve = ['value'];
@@ -183,7 +183,7 @@ describe('Gauge Metrics - BookStock Entity', () => {
     cds.transaction = originalTransaction;
   });
 
-  test('createObservableGauge logs error if rollback fails', async () => {
+  test('Gauge handler logs error if rollback fails', async () => {
     const { createObservableGauge } = require('../lib/metrics/entity-metrics');
     const entity = { name: 'TestEntity', description: 'desc' };
     const fieldToObserve = ['value'];
