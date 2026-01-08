@@ -158,4 +158,4 @@ Copyright 2026 SAP SE or an SAP affiliate company and <your-project> contributor
 
 ## Disclaimer
 
-Metrics collected by this library will be propagated to monitoring dashboards. When using the @Gauge annotation, ensure that you do not observe or expose any fields containing Personal Data, as this may lead to unintended data exposure.
+Metrics collected by this library will be propagated to monitoring dashboards. When using the @Gauge annotation, ensure that you do not observe or expose any fields containing Personal Data, as this may lead to unintended data exposure. For @Counter annotation, avoid using any attribute other than tenant if it may contain personal data (such as user).
