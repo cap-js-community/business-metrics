@@ -43,7 +43,7 @@ To use this library in your CAP project, ensure the following:
 
 ## Features
 
-- **Counter Metrics**: Track the number of times specific events (e.g., READ, DELETE) occur for entities or actions.
+- **Counter Metrics**: Track the number of times specific events occur for service entities or actions (e.g., READ, DELETE or custom actions like releaseSalesOrder).
 - **Gauge Metrics**: Monitor and observe specific fields of entities, such as stock levels or other numeric values.
 
 ### Counter Annotation
@@ -89,7 +89,7 @@ Example for reference in both entity amd action scenario:
     }
 ```
 
-- **Events**: Specify the events (e.g., READ, DELETE) for which the counter metrics should be triggered.  [See full list of available events in the CAP docs](https://cap.cloud.sap/docs/node.js/events#cds-event)
+- **Events**: Specify the events for which the counter metrics should be triggered.  [See full list of available events in the CAP docs](https://cap.cloud.sap/docs/node.js/events#cds-event)
 - **Attributes**: Define attributes (e.g. tenant) to include in the metrics. The library supports the capture of tenant information only.
 
 ##### Example `counter metrics` outputs:
