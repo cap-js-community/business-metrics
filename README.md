@@ -1,5 +1,7 @@
 # Business-metrics
 
+[![REUSE status](https://api.reuse.software/badge/github.com/cap-js-community/business-metrics)](https://api.reuse.software/info/github.com/cap-js-community/business-metrics)
+
 ## About this project
 
 **Business-metrics** is an extension library for **@cap-js/telemetry** designed for CAP (Cloud Application Programming) applications. It allows you to effortlessly track usage and performance by integrating Counter and Gauge metrics directly into your CAP service entities and actions. These metrics enable better observability and can be exported to telemetry tools for monitoring.
