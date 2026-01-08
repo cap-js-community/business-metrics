@@ -17,7 +17,8 @@
     "@opentelemetry/instrumentation-http": "^0.208",
     "@opentelemetry/resources": "^2.2",
     "@opentelemetry/sdk-metrics": "^2.2",
-    "@opentelemetry/sdk-trace-base": "^1.30",
+    "@opentelemetry/sdk-metrics": "^1.30",
+    "@opentelemetry/sdk-trace-base": "^2.2",
     "@opentelemetry/sdk-trace-node": "^2.2",
     "@opentelemetry/semantic-conventions": "^1.27"
   },
