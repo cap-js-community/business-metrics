@@ -11,8 +11,8 @@ module.exports = class ProductService extends cds.ApplicationService{
         this.on('buyBook', async (req) => {
             const bookBought = await SELECT.from(req.entity).where({ID:req.params[0].ID})
             if (!bookBought.length) {
-                req.error(404, `Book with ID ${req.params[0].ID} not found`);
-            }
+                req.reject(404, `Book with ID ${req.params[0].ID} not found`);
+            } 
             req.info(`Book ${bookBought[0].title} bought`);
             return "Book bought";
         })
