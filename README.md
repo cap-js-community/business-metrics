@@ -70,14 +70,12 @@ Example for reference in both entity amd action scenario:
             {
             event: 'READ',
             attributes: [
-                user,
                 tenant
             ]
             },
             {
             event: 'DELETE',
             attributes: [
-                user,
                 tenant
             ]
             }
@@ -85,7 +83,6 @@ Example for reference in both entity amd action scenario:
         entity Books as projection on my.Books;
 
         @(Counter: {attributes: [
-            user,
             tenant
         ]})
         action purchaseBook() returns String;
@@ -93,7 +90,7 @@ Example for reference in both entity amd action scenario:
 ```
 
 - **Events**: Specify the events (e.g., READ, DELETE) for which the counter metrics should be triggered.  [See full list of available events in the CAP docs](https://cap.cloud.sap/docs/node.js/events#cds-event)
-- **Attributes**: Define attributes (e.g., user, tenant) to include in the metrics. [See full list of available attributes in the CAP docs](https://cap.cloud.sap/docs/node.js/events#cds-event-context)
+- **Attributes**: Define attributes (e.g. tenant) to include in the metrics. The library supports the capture of tenant information only.
 
 ##### Example `counter metrics` outputs:
 
@@ -101,7 +98,7 @@ The counter metric name always follows the pattern `<service name>.<entity name>
 
 ```
 [telemetry] - CategoryService.Books_READ_total: {
-  attributes: { user: '', tenant: '' },
+  attributes: { tenant: '' },
   startTime: [ 100000000, 400000000 ],
   endTime: [ 100000000, 600000000 ],
   value: 3
@@ -149,7 +146,7 @@ The guage metric name always follows the pattern `<service name>.<entity name>`.
 
 ## Support, Feedback, Contributing
 
-This project is open to feature requests/suggestions, bug reports etc. via [GitHub issues](https://github.com/cap-js-community/<your-project>/issues). Contribution and feedback are encouraged and always welcome. For more information about how to contribute, the project structure, as well as additional contribution information, see our [Contribution Guidelines](CONTRIBUTING.md).
+This project is open to feature requests/suggestions, bug reports etc. via [GitHub issues](https://github.com/cap-js-community/business-metrics/issues). Contribution and feedback are encouraged and always welcome. For more information about how to contribute, the project structure, as well as additional contribution information, see our [Contribution Guidelines](CONTRIBUTING.md).
 
 ## Code of Conduct
 
@@ -158,3 +155,7 @@ We as members, contributors, and leaders pledge to make participation in our com
 ## Licensing
 
 Copyright 2026 SAP SE or an SAP affiliate company and <your-project> contributors. Please see our [LICENSE](LICENSE) for copyright and license information. Detailed information including third-party components and their licensing/copyright information is available [via the REUSE tool](https://api.reuse.software/info/github.com/cap-js-community/business-metrics).
+
+## Disclaimer
+
+Metrics collected by this library will be propagated to monitoring dashboards. When using the @Gauge annotation, ensure that you do not observe or expose any fields containing Personal Data (PersonalData), as this may lead to unintended data exposure.
