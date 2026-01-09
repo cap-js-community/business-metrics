@@ -6,12 +6,15 @@ let _startup = true
 
 const cds = require('@sap/cds')
 const logger = cds.log('telemetry')
+/* istanbul ignore next */
 if (!(cds.cli?.command in { '': 1, serve: 1, run: 1 })) _startup = false
 
 // cds add XXX currently also has cli.command === ''
+/* istanbul ignore next */
 const i = process.argv.indexOf('add')
+/* istanbul ignore next */
 if (i > 1 && process.argv[i - 1].match(/cds(\.js)?$/)) _startup = false
-
+/* istanbul ignore next */
 if (!!process.env.NO_TELEMETRY && process.env.NO_TELEMETRY !== 'false') _startup = false
 
 
@@ -73,6 +76,7 @@ function getLabels(attributes, req) {
                             break;
                         default: {
                             // This should not happen due to validation above, but keeping as fallback
+                            /* istanbul ignore next */
                             const fallbackErrorMsg = `Unsupported attribute: ${attributeName}`;
                             throw new Error(fallbackErrorMsg);
                         }

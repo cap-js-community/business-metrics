@@ -6,7 +6,8 @@
   "files": [
     "lib",
     "cds-plugin.js"
-  ],
+  ],  
+ 
   "repository": "<Add your repository here>",
   "license": "UNLICENSED",
   "private": true,
