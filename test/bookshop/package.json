@@ -15,20 +15,10 @@
   "cds": {
     "requires": {
       "telemetry": {
-        "kind": "telemetry-to-console",
         "metrics": {
-        "enableBusinessMetrics": true,
-        "exporter": {
-                            "module": "@opentelemetry/exporter-prometheus",
-                            "class": "PrometheusExporter",
-                            "config": {
-                                "host": "localhost",
-                                "port": 4005,
-                                "endpoint": "metrics"
-                            }
-                        }
+          "enableBusinessMetrics": true
+        }
       }
     }
   }
-}
 }

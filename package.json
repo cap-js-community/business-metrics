@@ -7,9 +7,9 @@
     "lib",
     "cds-plugin.js"
   ],  
-  "workspaces":["test/bookshop"],
+
  
-  "repository": "git+https://github.com/cap-js-community/business-metrics",
+  "repository": "<add repository>",
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
@@ -21,8 +21,7 @@
     "@opentelemetry/sdk-metrics": "^1.30",
     "@opentelemetry/sdk-trace-base": "^2.2",
     "@opentelemetry/sdk-trace-node": "^2.2",
-    "@opentelemetry/semantic-conventions": "^1.27",
-    "business-metrics":"workspace:*"
+    "@opentelemetry/semantic-conventions": "^1.27"
   },
   "peerDependencies": {
     "@sap/cds": ">=9"
