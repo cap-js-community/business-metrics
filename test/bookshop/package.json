@@ -15,10 +15,11 @@
   "cds": {
     "requires": {
       "telemetry": {
+        "kind": "telemetry-to-console",
         "metrics": {
-          "enableBusinessMetrics": true
-        }
+        "enableBusinessMetrics": true
       }
     }
   }
+}
 }

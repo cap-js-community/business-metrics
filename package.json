@@ -7,9 +7,8 @@
     "lib",
     "cds-plugin.js"
   ],  
-
  
-  "repository": "<add repository>",
+  "repository": "<Add your repository here>",
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
