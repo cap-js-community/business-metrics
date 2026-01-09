@@ -1,6 +1,6 @@
 using { Currency, managed, sap } from '@sap/cds/common';
 namespace sap.capire.bookshop;
-
+@odata.draft.bypass
 entity Books : managed {
   key ID : Integer;
   @mandatory title  : localized String(111);
