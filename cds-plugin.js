@@ -1,6 +1,6 @@
 const { increaseCounter, createObservableGauge} = require('./lib/metrics/entity-metrics')
 const events = ["READ", "CREATE", "DELETE", "UPDATE"];
-const userAttributes = ["user", "tenant"];
+const userAttributes = ["tenant"];
 
 let _startup = true
 
@@ -68,9 +68,6 @@ function getLabels(attributes, req) {
                     }
 
                     switch (attributeName) {
-                        case 'user':
-                            labels.user = req?.user?.id || 'unknown';
-                            break;
                         case 'tenant':
                             labels.tenant = req?.authInfo?.getSubdomain() || 'unknown';
                             break;
