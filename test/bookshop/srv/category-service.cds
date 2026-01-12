@@ -8,14 +8,12 @@ service CategoryService {
         {
             event     : 'READ',
             attributes: [
-                user,
                 tenant
             ]
         },
         {
             event     : 'DELETE',
             attributes: [
-                user,
                 tenant
             ]
         }
@@ -23,14 +21,12 @@ service CategoryService {
     entity Books     as projection on my.Books
         actions {
             @(Counter: {attributes: [
-            user,
             tenant
             ]})
             action buyBook() returns String;
         }
 
     @(Counter: {attributes: [
-        user,
         tenant
     ]})
     action purchaseBook() returns String;
