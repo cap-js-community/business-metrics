@@ -70,20 +70,6 @@ beforeEach(() => {
 
 describe('cds-plugin business metrics', () => {
 
-  // test('registers counters for entity with @Counter.attributes', async () => {
-  //   const entity = {
-  //     name: 'Books',
-  //     '@Counter.attributes': ['user']
-  //   };
-
-  //   const srv = mockService({ entities: [entity] });
-  //   cds.services.push(srv);
-
-  //   await cds.__trigger('served');
-
-  //   expect(srv.after).toHaveBeenCalled();
-  // });
-
   test('registers counters for entity with @Counter events and attributes', async () => {
     const entity = {
       name: 'Books',
@@ -138,26 +124,6 @@ describe('cds-plugin business metrics', () => {
     expect(srv.after).toHaveBeenCalled();
   });
 
-  // test('registers counter for bound action with @Counter.attributes', async () => {
-  //   const entity = {
-  //     name: 'Books',
-  //     actions: [
-  //       {
-  //         name: 'CategoryService.buyBook',
-  //         parent: 'Books',
-  //         '@Counter.attributes': ['user']
-  //       }
-  //     ]
-  //   };
-
-  //   const srv = mockService({ entities: [entity] });
-  //   cds.services.push(srv);
-
-  //   await cds.__trigger('served');
-
-  //   expect(srv.after).toHaveBeenCalled();
-  // });
-
   test('registers counter for unbound action', async () => {
     const action = {
       name: 'CategoryService.purchaseBook',
@@ -207,28 +173,6 @@ describe('cds-plugin business metrics', () => {
       'ID'
     );
   });
-
-
-
- 
-
-  // test('counter handler calls increaseCounter when executed', async () => {
-  //   const entity = {
-  //     name: 'Books',
-  //     '@Counter.attributes': ['user']
-  //   };
-
-  //   const srv = mockService({ entities: [entity] });
-  //   cds.services.push(srv);
-
-  //   await cds.__trigger('served');
-
-  //   const handler = srv.after.mock.calls[0][2];
-
-  //   await handler({ user: { id: 'alice' } });
-
-  //   expect(increaseCounter).toHaveBeenCalled();
-  // });
 
   test('logs error for invalid attribute on entity counter', async () => {
     const entity = {
@@ -312,29 +256,4 @@ describe('cds-plugin business metrics', () => {
   
     expect(cds.__logger.error).toHaveBeenCalled();
   });
-  
-  
-  // test('logs error if counter handler throws', async () => {
-  //   increaseCounter.mockImplementationOnce(() => {
-  //     throw new Error('counter failed');
-  //   });
-  
-  //   const entity = {
-  //     name: 'Books',
-  //     '@Counter.attributes': ['user']
-  //   };
-  
-  //   const srv = mockService({ entities: [entity] });
-  //   cds.services.push(srv);
-  
-  //   await cds.__trigger('served');
-  
-  //   const handler = srv.after.mock.calls[0][2];
-  //   await handler({ user: { id: 'alice' } });
-  
-  //   expect(cds.__logger.error).toHaveBeenCalled();
-  // });
-  
-  
-
 });
