@@ -4,16 +4,16 @@
 
 ## About this project
 
-**Business-metrics** is an extension library for **@cap-js/telemetry** designed for CAP (Cloud Application Programming) applications. It allows you to effortlessly track usage and performance by integrating Counter and Gauge metrics directly into your CAP service entities and actions. These metrics enable better observability and can be exported to telemetry tools for monitoring.
+**Business-metrics** is an extension library for **@cap-js/telemetry** ddesigned for Cloud Application Programming (CAP) applications. It allows you to effortlessly track usage and performance by integrating Counter and Gauge metrics directly into your CAP service entities and actions. These metrics enable better observability and can be exported to telemetry tools for monitoring.
 
 ## Requirements and Setup
 
-To use this library in your CAP project, ensure the following:
+To use this library in your CAP project, ensure you have the following:
 
-- Node.js (version >= 14)
-- SAP CAP runtime (`@sap/cds`)
+- Node.js (version 14 or higher) 
+- SAP CAP runtime (@sap/cds)
 - A CAP-based Node.js project with service definitions
-- Telemetry enabled in the CAP application configuration
+- Telemetry enabled in the CAP application configuration 
 
 ### Installation
 
@@ -43,8 +43,8 @@ To use this library in your CAP project, ensure the following:
 
 ## Features
 
-- **Counter Metrics**: Track the number of times specific events occur for service entities or actions (e.g., READ, DELETE or custom actions like releaseSalesOrder).
-- **Gauge Metrics**: Monitor and observe specific fields of entities, such as stock levels or other numeric values.
+- **Counter Metrics**: Track the number of times specific events occur for service entities or actions, such as READ, DELETE, or custom actions like releaseSalesOrder.
+- **Gauge Metrics**: Monitor and observe specific entity fields, such as stock levels or other numeric values.
 
 ### Counter Annotation
 
@@ -61,9 +61,9 @@ Use the `@Counter` annotation in your `services.cds` file to enable counter metr
 ])
 ```
 
-Counter Metrics can be annotated for either service entities or actions in service.
+You can annotate counter metrics for service entities or actions.
 
-Example for reference in both entity amd action scenario:
+For reference, here are examples in both scenarios:
 ```js
     service CategoryService {
         @(Counter: [
@@ -89,12 +89,12 @@ Example for reference in both entity amd action scenario:
     }
 ```
 
-- **Events**: Specify the events for which the counter metrics should be triggered.  [See full list of available events in the CAP docs](https://cap.cloud.sap/docs/node.js/events#cds-event)
-- **Attributes**: Define attributes (e.g. tenant) to include in the metrics. The library supports the capture of tenant information only.
+- **Events**: Specify the events for which the counter metrics are triggered. [For a complete list of available events, see the CAP documentation.](https://cap.cloud.sap/docs/node.js/events#cds-event)
+- **Attributes**: Define the attributes to include in the metrics, such as tenant. The library supports the capture of tenant information only. 
 
-##### Example `counter metrics` outputs:
+##### Example: Counter Metrics Outputs :
 
-The counter metric name always follows the pattern `<service name>.<entity name>_<event>_total`. This pattern is fixed and cannot be changed or overridden.
+The counter metric name always follows the pattern <service name>.<entity name>_<event>_total. You can’t change or override this pattern. 
 
 ```
 [telemetry] - CategoryService.Books_READ_total: {
@@ -107,14 +107,14 @@ The counter metric name always follows the pattern `<service name>.<entity name>
 
 ### Gauge Annotation
 
-Use the `@Gauge` annotation in your `services.cds` file to enable gauge metrics for specific entities which is mentioned below:
+Use the `@Gauge` annotation in your `services.cds` file to enable gauge metrics for specific entities:
 ```js
     @(Gauge: {
         key    : '****',
         observe: ['****']
     })
 ```
-Example for reference in both entity amd action scenario:
+For reference, here is the examples: 
 ```js
     service CategoryService {
         @(Gauge: {
@@ -129,9 +129,9 @@ Example for reference in both entity amd action scenario:
             };
     }
 ```
-##### Example `gauge metrics` outputs:
+##### Example: Gauge Metrics Outputs :
 
-The guage metric name always follows the pattern `<service name>.<entity name>`. This pattern is fixed and cannot be changed or overridden.
+The gauge metric name always follows the pattern <service name>.<entity name>. You can’t change or override this pattern.  
 
 ```
 [telemetry] - CategoryService.BookStock: {
@@ -141,12 +141,16 @@ The guage metric name always follows the pattern `<service name>.<entity name>`.
   value: 22
 }
 ```
-- **Key**: Specify the unique key for the entity.
+- **Key**: Specify the unique key for the entity. 
 - **Observe**: Define the fields to observe for gauge metrics.
+
+## Disclaimer
+
+Metrics collected by this library will be propagated to monitoring dashboards. When using the @Gauge annotation, ensure that any fields containing personal data is not observed, as this may lead to unintended data exposure. For @Counter annotation, avoid using any attribute other than tenant if it may contain personal data (such as user). 
 
 ## Support, Feedback, Contributing
 
-This project is open to feature requests/suggestions, bug reports etc. via [GitHub issues](https://github.com/cap-js-community/business-metrics/issues). Contribution and feedback are encouraged and always welcome. For more information about how to contribute, the project structure, as well as additional contribution information, see our [Contribution Guidelines](CONTRIBUTING.md).
+This project is open to feature requests, suggestions, bug reports, etc. through [GitHub issues](https://github.com/cap-js-community/business-metrics/issues). We encourage and welcome your contributions and feedback. For more information about how to contribute, see our[Contribution Guidelines](CONTRIBUTING.md), which include details about the project structure and additional contribution information.
 
 ## Code of Conduct
 
@@ -154,8 +158,4 @@ We as members, contributors, and leaders pledge to make participation in our com
 
 ## Licensing
 
-Copyright 2026 SAP SE or an SAP affiliate company and <your-project> contributors. Please see our [LICENSE](LICENSE) for copyright and license information. Detailed information including third-party components and their licensing/copyright information is available [via the REUSE tool](https://api.reuse.software/info/github.com/cap-js-community/business-metrics).
-
-## Disclaimer
-
-Metrics collected by this library will be propagated to monitoring dashboards. When using the @Gauge annotation, ensure that any fields containing Personal Data is not observed, as this may lead to unintended data exposure. For @Counter annotation, avoid using any attribute other than tenant if it may contain personal data (such as user).
+Copyright 2026 SAP SE or an SAP affiliate company and contributors. Please see our [LICENSE](LICENSE) or copyright and license information. Detailed information including third-party components and their licensing/copyright information is available [via the REUSE tool](https://api.reuse.software/info/github.com/cap-js-community/business-metrics).
