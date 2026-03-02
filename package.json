@@ -6,11 +6,12 @@
   "files": [
     "lib",
     "cds-plugin.js"
-  ],  
- 
-  "repository": "<Add your repository here>",
-  "license": "UNLICENSED",
-  "private": true,
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cap-js-community/business-metrics"
+  },
+  "license": "Apache-2.0",
   "dependencies": {
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/core": "^2.2",
