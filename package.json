@@ -10,7 +10,6 @@
  
   "repository": "<Add your repository here>",
   "license": "UNLICENSED",
-  "private": true,
   "dependencies": {
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/core": "^2.2",
