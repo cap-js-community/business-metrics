@@ -1,15 +1,11 @@
-const { increaseCounter, createObservableGauge} = require('./lib/metrics/entity-metrics')
-const events = ["READ", "CREATE", "DELETE", "UPDATE"];
-const userAttributes = ["tenant"];
-
+const { increaseCounter, createObservableGauge } = require('./lib/metrics/entity-metrics')
+const Dimensions = ["tenant"];
+const CRUD = ["READ", "CREATE", "DELETE", "UPDATE"];
 let _startup = true
-
 const cds = require('@sap/cds')
 const logger = cds.log('telemetry')
 /* istanbul ignore next */
 if (!(cds.cli?.command in { '': 1, serve: 1, run: 1 })) _startup = false
-
-// cds add XXX currently also has cli.command === ''
 /* istanbul ignore next */
 const i = process.argv.indexOf('add')
 /* istanbul ignore next */
@@ -17,30 +13,22 @@ if (i > 1 && process.argv[i - 1].match(/cds(\.js)?$/)) _startup = false
 /* istanbul ignore next */
 if (!!process.env.NO_TELEMETRY && process.env.NO_TELEMETRY !== 'false') _startup = false
 
-
-if(_startup && cds?.requires?.telemetry?.metrics?.enableBusinessMetrics) {
-    //business metrics handling
-
+if (_startup && cds?.requires?.telemetry?.metrics?.enableBusinessMetrics) {
     cds.once("served", async () => {
         try {
-            // Go through all services
             for (let srv of cds.services) {
                 try {
-                    // Go through all entities of that service
-                    for (let entity of srv.entities) { 
-
+                    for (let entity of srv.entities) {
                         await handleGaugeAnnotation(entity);
-                        await handleCounterAnnotationOnEntity(entity, srv);
-
+                        await handleCountingAnnotationOnEntity(entity, srv);
                         if (entity.actions) {
                             for (let boundAction of entity.actions) {
-                                await handleCounterAnnotationOnBoundAction(entity, boundAction, srv)
+                                await handleCountingAnnotationOnBoundAction(entity, boundAction, srv);
                             }
                         }
                     }
-
                     for (let action of srv.actions) {
-                        await handleCounterAnnotationOnUnboundAction(action, srv);
+                        await handleCountingAnnotationOnUnboundAction(action, srv);
                     }
                 } catch (serviceError) {
                     logger.error(`Error processing service ${srv.name}:`, serviceError.message);
@@ -51,189 +39,151 @@ if(_startup && cds?.requires?.telemetry?.metrics?.enableBusinessMetrics) {
         }
     });
 }
+// Find all '@UsageMetering.Counting#<qualifier>...' keys (flat, dotted) and
+// group them back into nested objects keyed by qualifier.
+function getCountingAnnotations(target) {
+    const grouped = {};
+    if (!target) return [];
+    const prefix = '@UsageMetering.Counting#';
+    for (const key of Object.keys(target)) {
+        if (!key.startsWith(prefix)) continue;
+        const rest = key.substring(prefix.length);
+        let qualifier;
+        let path;
 
-function getLabels(attributes, req) {
-    let labels = {};
+        const dimensionsIdx = rest.lastIndexOf('.Dimensions');
+        const operationIdx = rest.lastIndexOf('.Operation');
 
-    try {
-        if (attributes) {
-            attributes.forEach((attribute) => {
-                try {
-                    const attributeName = attribute['='] || attribute;
-                    
-                    // Validate if the attribute is in the list of valid attributes
-                    if (!userAttributes.includes(attributeName)) {
-                        const errorMsg = `Invalid attribute '${attributeName}'. Valid attributes are: ${userAttributes.join(', ')}`;
-                        throw new Error(errorMsg);
-                    }
+        const boundary = Math.max(dimensionsIdx, operationIdx);
 
-                    switch (attributeName) {
-                        case 'tenant':
-                            labels.tenant = req?.authInfo?.getSubdomain() || 'unknown';
-                            break;
-                        default: {
-                            // This should not happen due to validation above, but keeping as fallback
-                            /* istanbul ignore next */
-                            const fallbackErrorMsg = `Unsupported attribute: ${attributeName}`;
-                            throw new Error(fallbackErrorMsg);
-                        }
-                    }
-                } catch (attributeError) {
-                    logger.error(`Error processing attribute ${attribute['='] || attribute}:`, attributeError.message);
-                    throw attributeError; // Re-throw to stop processing
-                }
-            });
+        if (boundary !== -1) {
+            qualifier = rest.substring(0, boundary);
+            path = rest.substring(boundary + 1).split('.');
+        } else {
+            qualifier = rest;
+            path = [];
         }
-    } catch (error) {
-        logger.error('Error getting labels:', error.message);
-        throw error; // Re-throw to propagate the error
-    }
 
+        if (!grouped[qualifier]) grouped[qualifier] = {};
+        let cur = grouped[qualifier];
+        for (let i = 0; i < path.length - 1; i++) {
+            if (typeof cur[path[i]] !== 'object' || cur[path[i]] === null) cur[path[i]] = {};
+            cur = cur[path[i]];
+        }
+        if (path.length > 0) cur[path[path.length - 1]] = target[key];
+    }
+    return Object.entries(grouped).map(([qualifier, value]) => ({ qualifier, value }));
+}
+function getDimensions(value) {
+    return Array.isArray(value?.Dimensions)
+        ? value.Dimensions
+        : Object.keys(value?.Dimensions || {});
+}
+function getLabels(dimensions, req) {
+    const labels = {};
+    if (!dimensions) return labels;
+    dimensions.forEach((name) => {
+        const dimensionName = name['='] || name;
+        if (!Dimensions.includes(dimensionName)) {
+            const errorMsg = `Invalid dimension '${dimensionName}'. Valid dimensions are: ${Dimensions.join(', ')}`;
+            logger.error(errorMsg);
+            throw new Error(errorMsg);
+        }
+        switch (dimensionName) {
+            case 'tenant':
+                labels.tenant = req?.authInfo?.getSubdomain() || 'unknown';
+                break;
+            /* istanbul ignore next */
+            default:
+                throw new Error(`Unsupported dimension: ${dimensionName}`);
+        }
+    });
     return labels;
 }
 
-function validateAttributes(attributes, context) {
-    if (!attributes || !Array.isArray(attributes)) {
-        return; // No attributes to validate
-    }
-
-    logger.debug(`Checking attributes for ${context}:`, attributes.map(attr => attr['='] || attr));
-
-    attributes.forEach((attribute) => {
-        const attributeName = attribute['='] || attribute;
-        if (!userAttributes.includes(attributeName)) {
-            const errorMsg = `Invalid attribute '${attributeName}' in ${context}. Valid attributes are: ${userAttributes.join(', ')}`;
+function validateDimensions(dimensions, context) {
+    if (!dimensions || !Array.isArray(dimensions)) return;
+    dimensions.forEach((name) => {
+        const dimensionName = name['='] || name;
+        if (!Dimensions.includes(dimensionName)) {
+            const errorMsg = `Invalid dimension '${dimensionName}' in ${context}. Valid dimensions are: ${Dimensions.join(', ')}`;
             logger.error(errorMsg);
             throw new Error(errorMsg);
         }
     });
-    
-    logger.debug(`All attributes valid for ${context}`);
 }
-
-async function handleCounterAnnotationOnEntity(entity, srv) {
+async function handleCountingAnnotationOnEntity(entity, srv) {
     try {
-        if (entity['@Counter.attributes']) {
-            // Validate attributes before setting up handlers
-            validateAttributes(entity['@Counter.attributes'], `entity ${entity.name} @Counter.attributes`);
-            
-            // Register after handler for all events and create counter with given attributes
-            for (let event of events) {
-                srv.after(event, entity, async (req) => {
-                    try {
-                        increaseCounter(`${entity.name}_${event}_total`, getLabels(entity['@Counter.attributes'], req));
-                        // createCounterMetrics({entity: entity.name, event: event, labels: getLabels(event, req)})
-                    } catch (error) {
-                        logger.error(`Error handling counter for entity ${entity.name}, event ${event}:`, error.message);
-                    }
-                });
+        const annotations = getCountingAnnotations(entity);
+        for (const { qualifier, value } of annotations) {
+            const event = value?.Operation?.CRUDType?.toUpperCase();
+            if (!CRUD.includes(event)) {
+                logger.error(`Unknown CRUDType '${value?.Operation?.CRUDType}' for ${entity.name} #${qualifier}`);
+                continue;
             }
-        } 
-
-        else if (entity['@Counter']) {
-            // User annotated with only events, may or may not have specified attributes
-            if (entity['@Counter'].length > 0) {
-                // Register after handler for only those events as annotated by user
-                for (let event of entity['@Counter']) {
-                    // Validate attributes if they exist
-                    if (event.attributes) {
-                        validateAttributes(event.attributes, `entity ${entity.name} @Counter event ${event.event}`);
-                    }
-                    
-                    srv.after(event.event, entity, async (_, req) => {
-                        try {
-                            let attributes = event.attributes ? event.attributes : userAttributes;
-                            increaseCounter(`${entity.name}_${event.event}_total`, getLabels(attributes, req));
-                            // createCounterMetrics({entity: entity.name, event: event['='], labels: getLabels(event, req)})
-                        } catch (error) {
-                            logger.error(`Error handling counter for entity ${entity.name}, event ${event.event}:`, error.message);
-                        }
-                    });
+            const dimensions = getDimensions(value);
+            validateDimensions(dimensions, `entity ${entity.name} #${qualifier}`);
+            srv.after(event, entity, async (_, req) => {
+                try {
+                    increaseCounter(qualifier, getLabels(dimensions, req));
+                } catch (error) {
+                    logger.error(`Error handling counter ${qualifier} on ${entity.name}:`, error.message);
                 }
-            } else {
-                // User annotated without specifying the event and attributes
-                for (let event of events) {
-                    srv.after(event, entity, async (req) => {
-                        try {
-                            increaseCounter(`${entity.name}_${event}_total`, getLabels(userAttributes, req));
-                            // createCounterMetrics({entity: entity.name, event: event, labels: getLabels([], req)})
-                        } catch (error) {
-                            logger.error(`Error handling counter for entity ${entity.name}, event ${event}:`, error.message);
-                        }
-                    });
-                }
-            }
+            });
         }
     } catch (error) {
-        logger.error(`Error setting up counter annotation for entity ${entity.name}:`, error.message);
-        throw error; // Re-throw validation errors to stop service initialization
+        logger.error(`Error setting up counting on entity ${entity.name}:`, error.message);
+        throw error;
     }
 }
-
-async function handleCounterAnnotationOnBoundAction(entity, boundAction, srv) {
+async function handleCountingAnnotationOnBoundAction(entity, boundAction, srv) {
     try {
-        if (boundAction['@Counter'] || boundAction['@Counter.attributes']) {
-            let attributes = boundAction['@Counter'] ? userAttributes : boundAction['@Counter.attributes'];
-            
-            // Validate attributes
-            if (boundAction['@Counter.attributes']) {
-                validateAttributes(boundAction['@Counter.attributes'], `bound action ${boundAction.name} @Counter.attributes`);
-            }
-            
-            // Extract name from action.name => CatalogService.purchaseBook -> purchaseBook
+        const annotations = getCountingAnnotations(boundAction);
+        for (const { qualifier, value } of annotations) {
+            const dimensions = getDimensions(value);
+            validateDimensions(dimensions, `bound action ${boundAction.name} #${qualifier}`);
             const actionName = boundAction.name.split('.').pop();
-
             srv.after(actionName, entity, async (_, req) => {
                 try {
-                    increaseCounter(`${boundAction.parent}_${boundAction.name}_total`, getLabels(attributes, req));
-                    // createCounterMetrics({isAction: true, action: `${boundAction.parent}-${boundAction.name}`, actionResponse: res})
+                    increaseCounter(qualifier, getLabels(dimensions, req));
                 } catch (error) {
-                    logger.error(`Error handling counter for bound action ${boundAction.name}:`, error.message);
+                    logger.error(`Error handling counter ${qualifier} on bound action ${boundAction.name}:`, error.message);
                 }
             });
         }
     } catch (error) {
-        logger.error(`Error setting up counter annotation for bound action ${boundAction.name}:`, error.message);
-        throw error; // Re-throw validation errors to stop service initialization
+        logger.error(`Error setting up counting on bound action ${boundAction.name}:`, error.message);
+        throw error;
     }
 }
-
-async function handleCounterAnnotationOnUnboundAction(action, srv) {
+async function handleCountingAnnotationOnUnboundAction(action, srv) {
     try {
-        if (action['@Counter'] || action['@Counter.attributes']) {
-            let attributes = action['@Counter'] ? userAttributes : action['@Counter.attributes'];
-            
-            // Validate attributes
-            if (action['@Counter.attributes']) {
-                validateAttributes(action['@Counter.attributes'], `unbound action ${action.name} @Counter.attributes`);
-            }
-
-            // Extract name from action.name => CatalogService.purchaseBook -> purchaseBook
+        const annotations = getCountingAnnotations(action);
+        for (const { qualifier, value } of annotations) {
+            const dimensions = getDimensions(value);
+            validateDimensions(dimensions, `unbound action ${action.name} #${qualifier}`);
             const actionName = action.name.split('.').pop();
-
             srv.after(actionName, async (_, req) => {
                 try {
-                    increaseCounter(`${action.name}_total`, getLabels(attributes, req));
-                    // createCounterMetrics({isAction: true, action: action.name, actionReq: req})
+                    increaseCounter(qualifier, getLabels(dimensions, req));
                 } catch (error) {
-                    logger.error(`Error handling counter for unbound action ${action.name}:`, error.message);
+                    logger.error(`Error handling counter ${qualifier} on unbound action ${action.name}:`, error.message);
                 }
             });
         }
     } catch (error) {
-        logger.error(`Error setting up counter annotation for unbound action ${action.name}:`, error.message);
-        throw error; // Re-throw validation errors to stop service initialization
+        logger.error(`Error setting up counting on unbound action ${action.name}:`, error.message);
+        throw error;
     }
 }
-
 async function handleGaugeAnnotation(entity) {
     try {
-        if (entity['@Gauge.observe'] && entity['@Gauge.key']) {
-            await createObservableGauge(entity, entity['@Gauge.observe'], entity['@Gauge.key']);
+        const observe = entity['@UsageMetering.Gauge.Observe'];
+        const key = entity['@UsageMetering.Gauge.Key'];
+        if (observe && key) {
+            await createObservableGauge(entity, observe, key);
         }
     } catch (error) {
-        logger.error(`Error setting up gauge annotation for entity ${entity.name}:`, error.message);
+        logger.error(`Error setting up gauge on entity ${entity.name}:`, error.message);
     }
 }
-
-// if (_startup) require('./lib')()

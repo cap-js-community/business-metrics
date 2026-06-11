@@ -4,7 +4,7 @@ jest.mock('@sap/cds', () => {
       error: jest.fn(),
       debug: jest.fn()
     };
-  
+
     return {
       cli: { command: 'serve' },
       requires: {
@@ -19,7 +19,7 @@ jest.mock('@sap/cds', () => {
         onceHandlers[event] = cb;
       }),
       log: jest.fn(() => logger),
-      __logger: logger, // 👈 expose for tests
+      __logger: logger, // expose for tests
       __trigger: async (event) => {
         if (onceHandlers[event]) {
           await onceHandlers[event]();
@@ -27,7 +27,7 @@ jest.mock('@sap/cds', () => {
       }
     };
   });
-  
+
 jest.mock('../lib/metrics/entity-metrics', () => ({
   increaseCounter: jest.fn(),
   createObservableGauge: jest.fn()
@@ -39,7 +39,6 @@ jest.mock('../lib/metrics/entity-metrics', () => ({
 
 const cds = require('@sap/cds');
 const {
-  increaseCounter,
   createObservableGauge
 } = require('../lib/metrics/entity-metrics');
 
@@ -70,12 +69,12 @@ beforeEach(() => {
 
 describe('cds-plugin business metrics', () => {
 
-  test('registers counters for entity with @Counter events and attributes', async () => {
+  test('registers counter for entity with @UsageMetering.Counting (READ)', async () => {
     const entity = {
       name: 'Books',
-      '@Counter': [
-        { event: 'READ', attributes: ['tenant'] }
-      ]
+      '@UsageMetering.Counting#myBooksReadMetric.Dimensions.tenant': true,
+      '@UsageMetering.Counting#myBooksReadMetric.Operation.CRUDType': 'Read',
+      '@UsageMetering.Counting#myBooksReadMetric.Operation.Qualifier': 'List'
     };
 
     const srv = mockService({ entities: [entity] });
@@ -90,10 +89,11 @@ describe('cds-plugin business metrics', () => {
     );
   });
 
-  test('registers counters for entity with empty @Counter (all events)', async () => {
+  test('registers counter for entity with @UsageMetering.Counting (DELETE)', async () => {
     const entity = {
       name: 'Books',
-      '@Counter': []
+      '@UsageMetering.Counting#myBooksDeleteMetric.Dimensions.tenant': true,
+      '@UsageMetering.Counting#myBooksDeleteMetric.Operation.CRUDType': 'Delete'
     };
 
     const srv = mockService({ entities: [entity] });
@@ -101,7 +101,27 @@ describe('cds-plugin business metrics', () => {
 
     await cds.__trigger('served');
 
-    expect(srv.after).toHaveBeenCalled();
+    expect(srv.after).toHaveBeenCalledWith(
+      'DELETE',
+      entity,
+      expect.any(Function)
+    );
+  });
+
+  test('skips entity counter when CRUDType is unknown', async () => {
+    const entity = {
+      name: 'Books',
+      '@UsageMetering.Counting#bogus.Dimensions.tenant': true,
+      '@UsageMetering.Counting#bogus.Operation.CRUDType': 'Frobnicate'
+    };
+
+    const srv = mockService({ entities: [entity] });
+    cds.services.push(srv);
+
+    await cds.__trigger('served');
+
+    expect(srv.after).not.toHaveBeenCalled();
+    expect(cds.__logger.error).toHaveBeenCalled();
   });
 
   test('registers counter for bound action', async () => {
@@ -111,7 +131,7 @@ describe('cds-plugin business metrics', () => {
         {
           name: 'CategoryService.buyBook',
           parent: 'Books',
-          '@Counter': true
+          '@UsageMetering.Counting#myBuyBookCallsMetric.Dimensions.tenant': true
         }
       ]
     };
@@ -121,13 +141,17 @@ describe('cds-plugin business metrics', () => {
 
     await cds.__trigger('served');
 
-    expect(srv.after).toHaveBeenCalled();
+    expect(srv.after).toHaveBeenCalledWith(
+      'buyBook',
+      entity,
+      expect.any(Function)
+    );
   });
 
   test('registers counter for unbound action', async () => {
     const action = {
       name: 'CategoryService.purchaseBook',
-      '@Counter': true
+      '@UsageMetering.Counting#myPurchaseBookCallsMetric.Dimensions.tenant': true
     };
 
     const srv = mockService({ actions: [action] });
@@ -141,25 +165,11 @@ describe('cds-plugin business metrics', () => {
     );
   });
 
-  test('registers counter for unbound action with @Counter.attributes', async () => {
-    const action = {
-      name: 'CategoryService.purchaseBook',
-      '@Counter.attributes': ['tenant']
-    };
-
-    const srv = mockService({ actions: [action] });
-    cds.services.push(srv);
-
-    await cds.__trigger('served');
-
-    expect(srv.after).toHaveBeenCalled();
-  });
-
-  test('creates observable gauge when @Gauge annotations exist', async () => {
+  test('creates observable gauge when @UsageMetering.Gauge exists', async () => {
     const entity = {
-      name: 'Books',
-      '@Gauge.observe': 'stock',
-      '@Gauge.key': 'ID'
+      name: 'BookStock',
+      '@UsageMetering.Gauge.Key': 'ID',
+      '@UsageMetering.Gauge.Observe': ['stock']
     };
 
     const srv = mockService({ entities: [entity] });
@@ -169,73 +179,71 @@ describe('cds-plugin business metrics', () => {
 
     expect(createObservableGauge).toHaveBeenCalledWith(
       entity,
-      'stock',
+      ['stock'],
       'ID'
     );
   });
 
-  test('logs error for invalid attribute on entity counter', async () => {
+  test('logs error for invalid dimension on entity counter', async () => {
     const entity = {
       name: 'Books',
-      '@Counter.attributes': ['invalidAttribute']
+      '@UsageMetering.Counting#myBadMetric.Dimensions.invalidDimension': true,
+      '@UsageMetering.Counting#myBadMetric.Operation.CRUDType': 'Read'
     };
-  
+
     const srv = mockService({ entities: [entity] });
     cds.services.push(srv);
-  
-    await cds.__trigger('served');
-  
-    const calls = cds.__logger.error.mock.calls.flat().join(' ');
-  
-    expect(calls).toContain('Invalid attribute');
-  });
-  
 
-  test('logs error for invalid attribute on bound action', async () => {
+    await cds.__trigger('served');
+
+    const calls = cds.__logger.error.mock.calls.flat().join(' ');
+    expect(calls).toContain('Invalid');
+  });
+
+  test('logs error for invalid dimension on bound action', async () => {
     const entity = {
       name: 'Books',
       actions: [
         {
           name: 'CategoryService.buyBook',
           parent: 'Books',
-          '@Counter.attributes': ['invalid']
+          '@UsageMetering.Counting#myBadBoundMetric.Dimensions.invalid': true
         }
       ]
     };
-  
+
     const srv = mockService({ entities: [entity] });
     cds.services.push(srv);
-  
+
     await cds.__trigger('served');
-  
 
     expect(cds.__logger.error).toHaveBeenCalled();
   });
-  
-  test('logs error for invalid attribute on unbound action', async () => {
+
+  test('logs error for invalid dimension on unbound action', async () => {
     const action = {
       name: 'CategoryService.purchaseBook',
-      '@Counter.attributes': ['invalid']
+      '@UsageMetering.Counting#myBadUnboundMetric.Dimensions.invalid': true
     };
-  
+
     const srv = mockService({ actions: [action] });
     cds.services.push(srv);
-  
+
     await cds.__trigger('served');
-  
+
     expect(cds.__logger.error).toHaveBeenCalled();
   });
 
   test('does not register metrics when NO_TELEMETRY is set', async () => {
     process.env.NO_TELEMETRY = 'true';
-  
+
     jest.resetModules();
     require('../cds-plugin');
-  
+
     await cds.__trigger('served');
-  
+
     expect(cds.services.length).toBe(0);
-  
+
     delete process.env.NO_TELEMETRY;
   });
 
@@ -243,17 +251,66 @@ describe('cds-plugin business metrics', () => {
     createObservableGauge.mockImplementationOnce(() => {
       throw new Error('boom');
     });
-  
+
     const entity = {
-      name: 'Books',
-      '@Gauge.observe': 'stock',
-      '@Gauge.key': 'ID'
+      name: 'BookStock',
+      '@UsageMetering.Gauge.Key': 'ID',
+      '@UsageMetering.Gauge.Observe': ['stock']
     };
-  
+
     cds.services.push(mockService({ entities: [entity] }));
-  
+
     await cds.__trigger('served');
-  
+
     expect(cds.__logger.error).toHaveBeenCalled();
   });
+
+  test('registers counter for bracketed qualifier', async () => {
+  const entity = {
+    name: 'Books',
+    '@UsageMetering.Counting#![my.metric].Dimensions.tenant': true,
+    '@UsageMetering.Counting#![my.metric].Operation.CRUDType': 'Read'
+  };
+
+  const srv = mockService({ entities: [entity] });
+  cds.services.push(srv);
+
+  await cds.__trigger('served');
+
+  expect(srv.after).toHaveBeenCalledWith(
+    'READ',
+    entity,
+    expect.any(Function)
+  );
+});
+
+test('logs error for malformed bracketed qualifier', async () => {
+  const entity = {
+    name: 'Books',
+    '@UsageMetering.Counting#![brokenMetric.Dimensions.tenant': true
+  };
+
+  const srv = mockService({ entities: [entity] });
+  cds.services.push(srv);
+
+  await cds.__trigger('served');
+
+  expect(cds.__logger.error).toHaveBeenCalled();
+});
+
+test('handles bracketed qualifier without path', async () => {
+  const entity = {
+    name: 'Books',
+    '@UsageMetering.Counting#![metric]': true
+  };
+
+  const srv = mockService({ entities: [entity] });
+  cds.services.push(srv);
+
+  await cds.__trigger('served');
+
+  expect(cds.__logger.error).toHaveBeenCalled();
+});
+
+
 });

@@ -1,38 +1,28 @@
 {
   "name": "@cap-js-community/business-metrics",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Counter and Guage metrics for @cap-js/telemetry",
   "main": "cds-plugin.js",
   "files": [
     "lib",
     "cds-plugin.js"
-  ],  
- 
-  "repository": "<Add your repository here>",
-  "license": "UNLICENSED",
-  "private": true,
+  ], 
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cap-js-community/business-metrics.git"
+  }, 
+  "license": "Apache-2.0",
   "dependencies": {
-    "@opentelemetry/api": "^1.9.0",
-    "@opentelemetry/core": "^2.2",
-    "@opentelemetry/instrumentation": "^0.208",
-    "@opentelemetry/instrumentation-http": "^0.208",
-    "@opentelemetry/resources": "^2.2",
-    "@opentelemetry/sdk-metrics": "^1.30",
-    "@opentelemetry/sdk-trace-base": "^2.2",
-    "@opentelemetry/sdk-trace-node": "^2.2",
-    "@opentelemetry/semantic-conventions": "^1.27"
+    "@opentelemetry/api": "^1.9.0"
   },
   "peerDependencies": {
-    "@sap/cds": ">=9"
+    "@sap/cds": ">=9",
+    "@cap-js/telemetry": "^1.6.0"
   },
   "devDependencies": {
-    "@cap-js/cds-test": "^0.4.0",
-    "@cap-js/cds-types": "^0.13",
-    "@cap-js/sqlite": "^2",
-    "@cap-js/telemetry": "^1.2.3",
-    "@opentelemetry/host-metrics": "^0.36.0",
-    "@opentelemetry/instrumentation-runtime-node": "^0.17.0",
-    "@opentelemetry/exporter-prometheus":"^0.57",
+    "@cap-js/cds-test": "^1.0.1",
+    "@cap-js/cds-types": "^0.17.0",
+    "@cap-js/sqlite": "^2.4.0",
     "business-metrics": "file:.",
     "eslint": "^9.23.0",
     "jest": "^30.0.5"

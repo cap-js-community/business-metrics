@@ -1,23 +1,24 @@
 # Business-metrics
 
+Business Metrics Internal repo which will be published in cap-js-community
+
 [![REUSE status](https://api.reuse.software/badge/github.com/cap-js-community/business-metrics)](https://api.reuse.software/info/github.com/cap-js-community/business-metrics)
 
 ## About this project
 
-**Business-metrics** is an extension library for **@cap-js/telemetry** ddesigned for Cloud Application Programming (CAP) applications. It allows you to effortlessly track usage and performance by integrating Counter and Gauge metrics directly into your CAP service entities and actions. These metrics enable better observability and can be exported to telemetry tools for monitoring.
+**Business-metrics** is an extension library for **@cap-js/telemetry** designed for CAP (Cloud Application Programming) applications. It allows you to effortlessly track usage and performance by integrating Counter and Gauge metrics directly into your CAP service entities and actions. These metrics enable better observability and can be exported to telemetry tools for monitoring.
 
 ## Requirements and Setup
 
-To use this library in your CAP project, ensure you have the following:
+To use this library in your CAP project, ensure the following:
 
-- Node.js (version 14 or higher) 
-- SAP CAP runtime (@sap/cds)
+- SAP CAP runtime (`@sap/cds`)
 - A CAP-based Node.js project with service definitions
-- Telemetry enabled in the CAP application configuration 
+- Telemetry enabled in the CAP application configuration
 
 ### Installation
 
-1. Add `business-metrics` to your dependencies via npm add `@cap-js-community/business-metrics` 
+1. Add `business-metrics` to your dependencies via npm add `@cap-js-community/business-metrics`
 
     ```bash
     npm add @cap-js-community/business-metrics
@@ -43,61 +44,69 @@ To use this library in your CAP project, ensure you have the following:
 
 ## Features
 
-- **Counter Metrics**: Track the number of times specific events occur for service entities or actions, such as READ, DELETE, or custom actions like releaseSalesOrder.
-- **Gauge Metrics**: Monitor and observe specific entity fields, such as stock levels or other numeric values.
+- **Counter Metrics**: Track the number of times specific events occur for service entities or actions (e.g., READ, DELETE or custom actions like releaseSalesOrder).
+- **Gauge Metrics**: Monitor and observe specific fields of entities, such as stock levels or other numeric values.
 
-### Counter Annotation
+### Counting Annotation
 
-Use the `@Counter` annotation in your `services.cds` file to enable counter metrics for specific entities or actions.
+Use the `@UsageMetering.Counting` annotation in your `services.cds` file to enable counter metrics for specific entities or actions. Each metric is identified by a qualifier (`#<metricName>`), which becomes the metric name in the telemetry output.
 
-```js
-@(Counter: [
-    {
-        event     : '****',
-        attributes: [
-            ***
-        ]
+```cds
+annotate <Service>.<Target> with @UsageMetering.Counting #<metricName> : {
+    Dimensions : { tenant },
+    Operation  : { CRUDType : '****' }
+};
+```
+
+Counting Metrics can be annotated for service entities, bound actions, or unbound actions.
+
+Example for reference in entity, bound action, and unbound action scenarios:
+
+```cds
+service CategoryService {
+    @odata.draft.enabled
+    entity Books as projection on my.Books actions {
+        action buyBook() returns String;
+    };
+
+    action purchaseBook() returns String;
+}
+
+// Entity — CRUD metrics (READ + DELETE)
+annotate CategoryService.Books with @(
+    UsageMetering.Counting #myBooksReadMetric : {
+        Dimensions : { tenant },
+        Operation  : { CRUDType : 'Read' }
+    },
+    UsageMetering.Counting #myBooksDeleteMetric : {
+        Dimensions : { tenant },
+        Operation  : { CRUDType : 'Delete' }
     }
-])
+);
+
+// Bound action
+annotate CategoryService.Books with actions {
+    buyBook @UsageMetering.Counting #myBuyBookCallsMetric : {
+        Dimensions : { tenant }
+    };
+};
+
+// Unbound action
+annotate CategoryService.purchaseBook with @UsageMetering.Counting #myPurchaseBookCallsMetric : {
+    Dimensions : { tenant }
+};
 ```
 
-You can annotate counter metrics for service entities or actions.
+- **Qualifier (`#<metricName>`)**: The metric name used in the telemetry output.
+- **CRUDType**: For entity counters, specifies which CRUD event triggers the increment. Valid values: `Read`, `Create`, `Update`, `Delete`. (Not required for action counters.)
+- **Dimensions**: Define dimensions (e.g. `tenant`) to include in the metrics. The library supports the capture of tenant information only.
 
-For reference, here are examples in both scenarios:
-```js
-    service CategoryService {
-        @(Counter: [
-            {
-            event: 'READ',
-            attributes: [
-                tenant
-            ]
-            },
-            {
-            event: 'DELETE',
-            attributes: [
-                tenant
-            ]
-            }
-        ])
-        entity Books as projection on my.Books;
+##### Example `counting metrics` outputs:
 
-        @(Counter: {attributes: [
-            tenant
-        ]})
-        action purchaseBook() returns String;
-    }
-```
-
-- **Events**: Specify the events for which the counter metrics are triggered. [For a complete list of available events, see the CAP documentation.](https://cap.cloud.sap/docs/node.js/events#cds-event)
-- **Attributes**: Define the attributes to include in the metrics, such as tenant. The library supports the capture of tenant information only. 
-
-##### Example: Counter Metrics Outputs :
-
-The counter metric name always follows the pattern <service name>.<entity name>_<event>_total. You can’t change or override this pattern. 
+The counter metric name is the qualifier from the annotation (`#<metricName>`).
 
 ```
-[telemetry] - CategoryService.Books_READ_total: {
+[telemetry] - myBooksReadMetric: {
   attributes: { tenant: '' },
   startTime: [ 100000000, 400000000 ],
   endTime: [ 100000000, 600000000 ],
@@ -107,31 +116,35 @@ The counter metric name always follows the pattern <service name>.<entity name
 
 ### Gauge Annotation
 
-Use the `@Gauge` annotation in your `services.cds` file to enable gauge metrics for specific entities:
-```js
-    @(Gauge: {
-        key    : '****',
-        observe: ['****']
-    })
-```
-For reference, here is the examples: 
-```js
-    service CategoryService {
-        @(Gauge: {
-            key: 'ID',
-            observe: ['stock']
-        })
-        entity BookStock as
-            projection on my.Books {
-            ID,
-            title,
-            stock
-            };
-    }
-```
-##### Example: Gauge Metrics Outputs :
+Use the `@UsageMetering.Gauge` annotation in your `services.cds` file to enable gauge metrics for specific entities which is mentioned below:
 
-The gauge metric name always follows the pattern <service name>.<entity name>. You can’t change or override this pattern.  
+```cds
+annotate <Service>.<Entity> with @UsageMetering.Gauge : {
+    Key     : '****',
+    Observe : ['****']
+};
+```
+
+Example for reference:
+
+```cds
+service CategoryService {
+    entity BookStock as projection on my.Books {
+        ID,
+        title,
+        stock
+    };
+}
+
+annotate CategoryService.BookStock with @UsageMetering.Gauge : {
+    Key     : 'ID',
+    Observe : ['stock']
+};
+```
+
+##### Example `gauge metrics` outputs:
+
+The gauge metric name always follows the pattern `<service name>.<entity name>`. This pattern is fixed and cannot be changed or overridden.
 
 ```
 [telemetry] - CategoryService.BookStock: {
@@ -141,16 +154,12 @@ The gauge metric name always follows the pattern <service name>.<entity name>.
   value: 22
 }
 ```
-- **Key**: Specify the unique key for the entity. 
+- **Key**: Specify the unique key for the entity.
 - **Observe**: Define the fields to observe for gauge metrics.
-
-## Disclaimer
-
-Metrics collected by this library will be propagated to monitoring dashboards. When using the @Gauge annotation, ensure that any fields containing personal data is not observed, as this may lead to unintended data exposure. For @Counter annotation, avoid using any attribute other than tenant if it may contain personal data (such as user). 
 
 ## Support, Feedback, Contributing
 
-This project is open to feature requests, suggestions, bug reports, etc. through [GitHub issues](https://github.com/cap-js-community/business-metrics/issues). We encourage and welcome your contributions and feedback. For more information about how to contribute, see our[Contribution Guidelines](CONTRIBUTING.md), which include details about the project structure and additional contribution information.
+This project is open to feature requests/suggestions, bug reports etc. via [GitHub issues](https://github.com/cap-js-community/business-metrics/issues). Contribution and feedback are encouraged and always welcome. For more information about how to contribute, the project structure, as well as additional contribution information, see our [Contribution Guidelines](CONTRIBUTING.md).
 
 ## Code of Conduct
 
@@ -158,4 +167,8 @@ We as members, contributors, and leaders pledge to make participation in our com
 
 ## Licensing
 
-Copyright 2026 SAP SE or an SAP affiliate company and contributors. Please see our [LICENSE](LICENSE) or copyright and license information. Detailed information including third-party components and their licensing/copyright information is available [via the REUSE tool](https://api.reuse.software/info/github.com/cap-js-community/business-metrics).
+Copyright 2026 SAP SE or an SAP affiliate company and <your-project> contributors. Please see our [LICENSE](LICENSE) for copyright and license information. Detailed information including third-party components and their licensing/copyright information is available [via the REUSE tool](https://api.reuse.software/info/github.com/cap-js-community/business-metrics).
+
+## Disclaimer
+
+Metrics collected by this library will be propagated to monitoring dashboards. When using the `@UsageMetering.Gauge` annotation, ensure that any fields containing Personal Data is not observed, as this may lead to unintended data exposure. For `@UsageMetering.Counting` annotation, only tenant is supported as dimension 
