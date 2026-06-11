@@ -8,7 +8,7 @@ permissions:
 
 jobs:
   publish-npm:
-    runs-on: linux-amd64-s-docker-s
+    runs-on: ubuntu-latest
     environment: npm
     steps:
       - uses: actions/checkout@v3
