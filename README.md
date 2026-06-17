@@ -1,7 +1,5 @@
 # Business-metrics
 
-Business Metrics Internal repo which will be published in cap-js-community
-
 [![REUSE status](https://api.reuse.software/badge/github.com/cap-js-community/business-metrics)](https://api.reuse.software/info/github.com/cap-js-community/business-metrics)
 
 ## About this project
