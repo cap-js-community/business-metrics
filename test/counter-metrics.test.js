@@ -35,7 +35,48 @@ describe('Counter Metrics', () => {
 
     await wait(100);
 
-    expect(log.output).to.match(/Books_READ_total/i);
+    expect(log.output).to.match(/myBooksReadMetric/i);
+  });
+
+  test('Counter increments on READ event for bracketed qualifier #![my-cool.metric]', async () => {
+    const { status } = await GET('/odata/v4/category/Books', admin);
+    expect(status).to.equal(200);
+
+    await wait(100);
+
+    expect(log.output).to.match(/my-cool\.metric/i);
+  });
+
+  test('Counter increments on READ event for multi-period qualifier #![com.example.deep.metric]', async () => {
+    const { status } = await GET('/odata/v4/category/Books', admin);
+    expect(status).to.equal(200);
+
+    await wait(100);
+
+    expect(log.output).to.match(/com\.example\.deep\.metric/i);
+  });
+
+  test('Counter increments on READ event for qualifier ending in reserved word #![my.Operation]', async () => {
+    const { status } = await GET('/odata/v4/category/Books', admin);
+    expect(status).to.equal(200);
+
+    await wait(100);
+
+    expect(log.output).to.match(/my\.Operation/i);
+  });
+
+  test('Counter increments on READ event for array-form Dimensions', async () => {
+    const { status } = await GET('/odata/v4/category/Books', admin);
+    expect(status).to.equal(200);
+
+    await wait(100);
+
+    expect(log.output).to.match(/myArrayDimMetric:\s*{\s*attributes:\s*{\s*tenant:/);
+  });
+
+  test('Counter increments on DELETE event', async () => {
+    const { status } = await DELETE('/odata/v4/category/Books(ID=1001,IsActiveEntity=true)', admin);
+    expect(status).to.equal(204);
   });
 
   test('Counter increments on DELETE event', async () => {
@@ -44,7 +85,7 @@ describe('Counter Metrics', () => {
 
     await wait(100);
 
-    expect(log.output).to.match(/Books_DELETE_total/i);
+    expect(log.output).to.match(/myBooksDeleteMetric/i);
   });
 
   test('Counter increments on action purchaseBook', async () => {
@@ -53,7 +94,7 @@ describe('Counter Metrics', () => {
 
     await wait(100);
 
-    expect(log.output).to.match(/purchaseBook_total/i);
+    expect(log.output).to.match(/myPurchaseBookCallsMetric/i);
   });
 
   test('Counter increments on bound action buyBook', async () => {
@@ -62,7 +103,7 @@ describe('Counter Metrics', () => {
 
     await wait(100);
 
-    expect(log.output).to.match(/Books_buyBook_total/i);
+    expect(log.output).to.match(/myBuyBookCallsMetric/i);
   });
 
   test('Logs and throws error when counter creation fails', async () => {
@@ -101,4 +142,6 @@ describe('Counter Metrics', () => {
     // Restore
     metrics.getMeter = originalGetMeter;
   });
+
+  
 });

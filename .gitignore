@@ -40,6 +40,5 @@ coverage
 .pnp.*
 
 # custom
-package-lock.json
 .babelrc
 .prettierrc.js
