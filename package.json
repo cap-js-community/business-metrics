@@ -1,6 +1,6 @@
 {
   "name": "@cap-js-community/business-metrics",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Counter and Guage metrics for @cap-js/telemetry",
   "main": "cds-plugin.js",
   "files": [
@@ -21,10 +21,10 @@
   },
   "devDependencies": {
     "@cap-js/cds-test": "^1.0.1",
-    "@cap-js/cds-types": "^0.17.0",
+    "@cap-js/cds-types": "^0.18.0",
     "@cap-js/sqlite": "^2.4.0",
     "business-metrics": "file:.",
-    "eslint": "^9.23.0",
+    "eslint": "^10.5.0",
     "jest": "^30.0.5"
   },
   "scripts": {
