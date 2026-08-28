@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "@cap-js/cds-test": "^1.0.1",
-    "@cap-js/cds-types": "^0.18.0",
+    "@cap-js/cds-types": "^0.19.0",
     "@cap-js/sqlite": "^2.4.0",
     "business-metrics": "file:.",
     "eslint": "^10.5.0",
